@@ -5,13 +5,13 @@ from core.database import Base
 
 class Room(Base):
     __tablename__ = "rooms"
-    
+
     id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100))
+    name = Column(String(100), nullable=False)
     description = Column(String(500))
-    price = Column(Float)
+    price = Column(Float, nullable=False)
     is_available = Column(Boolean, default=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    
-    # Relationship to multiple images
+
+    # ✅ RELACIÓN
     images = relationship("RoomImage", back_populates="room", cascade="all, delete-orphan")
+    created_at = Column(DateTime, server_default=func.now())

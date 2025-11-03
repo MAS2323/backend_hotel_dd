@@ -16,13 +16,17 @@ class Settings(BaseSettings):
     api_secret: str = "21BOdAnPzxEGzJ3mY2NuO1D6rEw"
     upload_prefix: str = "holet_dd"  # Para carpetas como "holet_dd/gallery"
     
+    SECRET_KEY: str = "HHXXXYYYZZZ1234567890changethis"  # Cambia por una clave segura (e.g., generada con secrets.token_hex(32))
+    ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
+    
     # Computed DB URL (don't set in .env; let code build it)
     @property
     def sqlalchemy_database_url(self) -> str:
         return f"mysql+pymysql://{self.username}:{self.password}@{self.host}/{self.database}"
     
     # Other settings (from .env)
-    secret_key: str = "tu_clave_secreta_super_segura_para_jwt"  # Change this!
+    secret_key: str = "HHXXXYYYZZZ1234567890changethis"  # Change this!
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     
@@ -40,6 +44,6 @@ if not settings.database_url:
     
     
 
-cloud_name: str = "tu-cloud-name"
-api_key: str = "tu-api-key"
-api_secret: str = "tu-api-secret"
+cloud_name: str = "masonewe"
+api_key: str = "62288486154383"
+api_secret: str = "21BOdAnPzxEGzJ3mY2NuO1D6rEw"

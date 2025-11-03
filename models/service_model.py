@@ -4,6 +4,7 @@ from core.database import Base
 
 class Service(Base):
     __tablename__ = "services"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     icon_url = Column(String(1000), index=False)  # No full index; use prefix below

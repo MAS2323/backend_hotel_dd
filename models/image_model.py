@@ -6,6 +6,7 @@ from core.database import Base
 
 class Image(Base):
     __tablename__ = "images"
+    __table_args__ = {'extend_existing': True}
 
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String(1000), index=False)  # No auto-index; use custom below

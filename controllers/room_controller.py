@@ -7,32 +7,29 @@ from schemas.room_schema import RoomCreate, RoomBase, RoomImageCreate
 from core.cloudinary_config import upload_image
 import cloudinary.uploader
 
-def create_room(db: Session, room: RoomCreate, files: List[UploadFile] = None):
+def create_room(db: Session, room: RoomCreate, files: List[UploadFile] = None, image_data_list: List[RoomImageCreate] = None):
     db_room = Room(**room.dict(exclude={"images"}))
     db.add(db_room)
     db.commit()
     db.refresh(db_room)
     
-    # Handle multiple images
-    if files and room.images:
-        for file, img_data in zip(files, room.images):
+    if files and image_data_list:
+        for file, img_data in zip(files, image_data_list):
             result = cloudinary.uploader.upload(
-                file.file, folder="hotel_dd/rooms", resource_type="image", format="auto"
+                file.file,
+                folder="hotel_dd/rooms",
+                resource_type="image"
             )
-            url = result['secure_url']
-            public_id = result['public_id']
-            
             db_image = RoomImage(
-                url=url, 
-                public_id=public_id, 
-                alt=img_data.alt, 
+                url=result['secure_url'],
+                public_id=result['public_id'],
+                alt=img_data.alt,
                 room_id=db_room.id
             )
             db.add(db_image)
         db.commit()
     
     return db_room
-
 def get_rooms(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Room).offset(skip).limit(limit).all()
 

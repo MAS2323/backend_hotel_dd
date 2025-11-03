@@ -23,15 +23,15 @@ class RoomBase(BaseModel):
     is_available: Optional[bool] = True
 
 class RoomCreate(RoomBase):
-    images: Optional[List[RoomImageCreate]] = None  # List for multiple images
+    images: Optional[List[RoomImageCreate]] = None  # For initial images
 
 class RoomUpdate(RoomBase):
     images: Optional[List[RoomImageCreate]] = None  # For adding/updating images
 
 class Room(RoomBase):
     id: int
-    created_at: datetime
-    images: List[RoomImage] = []  # List of images
+    created_at: datetime  # ← campo obligatorio
+    images: List[RoomImage] = []
 
     class Config:
         from_attributes = True

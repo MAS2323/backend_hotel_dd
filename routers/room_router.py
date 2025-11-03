@@ -9,22 +9,22 @@ from controllers.room_controller import create_room, get_rooms, get_room, update
 
 room_router = APIRouter(prefix="/rooms", tags=["rooms"])
 
+
 @room_router.post("/", response_model=Room, status_code=status.HTTP_201_CREATED)
 def create_room_endpoint(
     name: str = Form(...),
     description: Optional[str] = Form(None),
     price: float = Form(...),
     is_available: bool = Form(True),
-    alt_list: List[str] = Form([]),  # List of alts for images
-    files: List[UploadFile] = File(...),  # Multiple files
+    alt_list: List[str] = Form([]),
+    files: List[UploadFile] = File([]),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
     room_data = RoomCreate(name=name, description=description, price=price, is_available=is_available)
     image_data_list = [RoomImageCreate(alt=alt) for alt in alt_list] if alt_list else []
     return create_room(db, room_data, files if files else None, image_data_list)
-
-@room_router.get("/", response_model=List[Room])
+@room_router.get("/", response_model=list[Room])
 def read_rooms(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return get_rooms(db, skip, limit)
 
