@@ -4,7 +4,7 @@ from typing import Optional
 from typing import List
 from core.database import get_db
 from core.security import get_current_user
-from schemas.room_schema import Room, RoomCreate, RoomBase, RoomImageCreate
+from schemas.room_schema import Room, RoomCreate, RoomBase, RoomImageCreate, RoomUpdate
 from controllers.room_controller import create_room, get_rooms, get_room, update_room, delete_room
 
 room_router = APIRouter(prefix="/rooms", tags=["rooms"])
@@ -35,6 +35,7 @@ def read_room(room_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Room not found")
     return db_room
 
+# routers/room_router.py
 @room_router.put("/{room_id}", response_model=Room)
 def update_room_endpoint(
     room_id: int,
@@ -47,7 +48,18 @@ def update_room_endpoint(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
-    room_update = RoomBase(name=name, description=description, price=price, is_available=is_available)
+    # Solo incluir campos que no son None
+    room_update_dict = {}
+    if name is not None:
+        room_update_dict["name"] = name
+    if description is not None:
+        room_update_dict["description"] = description
+    if price is not None:
+        room_update_dict["price"] = price
+    if is_available is not None:
+        room_update_dict["is_available"] = is_available
+    
+    room_update = RoomUpdate(**room_update_dict)
     image_data_list = [RoomImageCreate(alt=alt) for alt in alt_list] if alt_list else []
     return update_room(db, room_id, room_update, files if files else None, image_data_list)
 

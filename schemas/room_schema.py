@@ -26,6 +26,10 @@ class RoomCreate(RoomBase):
     images: Optional[List[RoomImageCreate]] = None  # For initial images
 
 class RoomUpdate(RoomBase):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[float] = None
+    is_available: Optional[bool] = None
     images: Optional[List[RoomImageCreate]] = None  # For adding/updating images
 
 class Room(RoomBase):
