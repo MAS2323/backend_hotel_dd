@@ -1,3 +1,4 @@
+# schemas/image_schema.py
 from pydantic import BaseModel
 from typing import Optional
 
@@ -6,12 +7,11 @@ class ImageBase(BaseModel):
     desc: str
 
 class ImageCreate(ImageBase):
-    file: Optional[str] = None  # Para upload inicial
+    pass  # File handled separately
 
 class ImageUpdate(BaseModel):
     alt: Optional[str] = None
     desc: Optional[str] = None
-    file: Optional[str] = None  # Opcional para re-upload
 
 class Image(ImageBase):
     id: int

@@ -9,8 +9,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-admin_router = APIRouter(prefix="/admin", tags=["admin"])
-
+admin_router = APIRouter()
 def require_admin(current_user: TokenData = Depends(get_current_user), db: Session = Depends(get_db)):
     logger.info(f"Require admin check for user: {current_user.username}, role: {current_user.role}")
     if current_user.role != "admin":
@@ -40,3 +39,15 @@ def update_user_role_endpoint(
         "message": "Role updated successfully",
         "user": UserOut.from_orm(updated_user)  # Retorna UserOut sin password
     }
+    
+
+
+def require_admin(current_user: TokenData = Depends(get_current_user)):
+    if current_user.role != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    return current_user
+
+@admin_router.get("/users")
+def get_admin_users(current_user: TokenData = Depends(require_admin)):
+    """Este endpoint será /admin/users cuando se registre"""
+    return {"message": "Admin users endpoint"}

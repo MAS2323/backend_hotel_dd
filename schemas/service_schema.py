@@ -14,11 +14,11 @@ class ServiceUpdate(BaseModel):
     title: Optional[str] = None
     desc: Optional[str] = None
 
-class Service(ServiceBase):
+class Service(ServiceBase):  # ✅ Changed: Inherit from ServiceBase for title/desc
     id: int
     icon_url: str
-    icon_public_id: str  # ✅ Añadir esto
-    created_at: datetime
+    icon_public_id: str
+    created_at: Optional[datetime] = None  # ✅ Made Optional to match model (nullable)
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # Good for v2

@@ -15,7 +15,7 @@ def upload_image(file, folder=None):
         folder = f"{settings.upload_prefix}/gallery"  # Usa prefix de settings
     try:
         result = cloudinary.uploader.upload(
-            file, folder=folder, resource_type="image", format="auto"
+            file, folder=folder, resource_type="image"
         )
         return result['secure_url'], result['public_id']  # Retorna ambos para modelo
     except Exception as e:

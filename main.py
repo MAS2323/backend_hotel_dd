@@ -1,7 +1,7 @@
+# main.py
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
-from core.database import engine
+from core.database import engine, Base
 from routers.user_router import user_router
 from routers.room_router import room_router
 from routers.booking_router import booking_router
@@ -9,12 +9,8 @@ from routers.gallery_router import gallery_router
 from routers.testimonial_router import testimonial_router
 from routers.admin_router import admin_router
 from routers.service_router import public_service_router, admin_service_router
+from routers.stats_router import stats_router
 
-# Import models
-from models.user_model import User
-from models.booking_model import Booking
-from models.testimonial_model import Testimonial
-from core.database import Base
 
 app = FastAPI(title="Hotel-DD API", version="1.0.0")
 
@@ -27,34 +23,41 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.router.redirect_slashes = False
+app.router.redirect_slashes = True
 
-# ==================== DEBUG ROUTERS ====================
-print("\n" + "="*60)
-print("🔍 DEBUG: IMPORTACIÓN DE ROUTERS")
-print("="*60)
-print(f"public_service_router: {public_service_router}")
-print(f"admin_service_router: {admin_service_router}")
-print(f"Rutas en admin_service_router: {len(admin_service_router.routes)}")
-for i, route in enumerate(admin_service_router.routes):
-    print(f"  {i+1}. {route.path} {route.methods}")
-print("="*60 + "\n")
+# ==================== DEBUG CRÍTICO ====================
+print("\n" + "="*70)
+print("🔍 DEBUG: VERIFICACIÓN DE RUTAS ANTES DE REGISTRAR")
+print("="*70)
+
+# Verifica que admin_router NO tenga prefijo interno
+print(f"admin_router.routes: {len(admin_router.routes)} rutas")
+for i, r in enumerate(admin_router.routes):
+    print(f"  {i+1}. {r.path} {r.methods}")
+
+# Verifica que admin_service_router SÍ tenga prefijo interno
+print(f"\nadmin_service_router.routes: {len(admin_service_router.routes)} rutas")
+for i, r in enumerate(admin_service_router.routes):
+    print(f"  {i+1}. {r.path} {r.methods}")
+
+print("\n" + "="*70 + "\n")
 # ======================================================
 
-# Register routers
-app.include_router(user_router)
-app.include_router(room_router)
-app.include_router(booking_router)
-app.include_router(gallery_router)
-app.include_router(testimonial_router)
-app.include_router(admin_router)
-app.include_router(public_service_router)
+# ==================== REGISTRO CRÍTICO ====================
+# ORDEN: De MENOS específico a MÁS específico
 
+app.include_router(admin_router, prefix="/admin")
+app.include_router(admin_service_router) 
 
-
-app.include_router(admin_service_router, prefix="/admin")  # /admin/
-app.include_router(admin_router, prefix="/admin")  # /admin
-
+# 3. Routers PÚBLICOS (cada uno con su propio prefijo)
+app.include_router(public_service_router)   # /services
+app.include_router(user_router)             # /users
+app.include_router(room_router)             # /rooms
+app.include_router(booking_router)          # /bookings
+app.include_router(gallery_router)          # /gallery
+app.include_router(testimonial_router)      # /testimonials
+# ==========================================================
+app.include_router(stats_router)
 @app.get("/")
 def read_root():
     return {"message": "¡API de Hotel-DD funcionando! Visita /docs"}
