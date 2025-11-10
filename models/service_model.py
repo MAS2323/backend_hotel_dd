@@ -1,17 +1,13 @@
-# models/service_model.py (fixed)
-from sqlalchemy import Column, Integer, String, Index, func
+# models/service_model.py
+from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy.sql import func
 from core.database import Base
 
 class Service(Base):
     __tablename__ = "services"
-    __table_args__ = {'extend_existing': True}
-
     id = Column(Integer, primary_key=True, index=True)
-    icon_url = Column(String(1000), index=False)  # No full index; use prefix below
-    title = Column(String(255), index=True)
-    desc = Column(String(500), index=True)
-
-    # Prefix index for icon_url (first 255 chars for uniqueness/search)
-    __table_args__ = (
-        Index('ix_services_icon_url_prefix', func.substring(icon_url, 1, 255), unique=False),
-    )
+    title = Column(String(255), nullable=False)
+    desc = Column(String(500), nullable=False)
+    icon_url = Column(String(500), nullable=False)
+    icon_public_id = Column(String(255), nullable=False)  # ✅ NUEVO CAMPO
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

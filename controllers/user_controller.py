@@ -1,9 +1,11 @@
-# controllers/user_controller.py
 from sqlalchemy.orm import Session
 from schemas.user_schema import UserCreate, User
-from models.user_model import User  # Importa de tu carpeta models/
+from models.user_model import User
 from core.security import get_password_hash
 from fastapi import HTTPException
+import logging
+
+logger = logging.getLogger(__name__)
 
 def create_user(db: Session, obj_in: UserCreate, hashed_password: str = None):
     """
@@ -33,6 +35,7 @@ def create_user(db: Session, obj_in: UserCreate, hashed_password: str = None):
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
+    logger.info(f"Usuario creado: {db_user.username}")
     return db_user
 
 def get_user(db: Session, skip: int = 0, limit: int = 100):
@@ -46,7 +49,11 @@ def get_user_by_username(db: Session, username: str):
     """
     Obtiene usuario por username (para login).
     """
-    return db.query(User).filter(User.username == username).first()
+    try:
+        return db.query(User).filter(User.username == username).first()
+    except Exception as e:
+        logger.error(f"Error querying user {username}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error en DB: {str(e)}")
 
 def update_user_role(db: Session, user_id: int, role: str):
     """
@@ -59,3 +66,9 @@ def update_user_role(db: Session, user_id: int, role: str):
     db.commit()
     db.refresh(user)
     return user
+
+def get_all_users(db: Session, skip: int = 0, limit: int = 100):
+    """
+    Obtiene todos los usuarios con paginación
+    """
+    return db.query(User).offset(skip).limit(limit).all()
