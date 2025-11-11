@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from sqlalchemy.orm import Session
-from typing import Optional
-from typing import List
+from typing import Optional, List
 from core.database import get_db
 from core.security import get_current_user
 from schemas.room_schema import Room, RoomCreate, RoomBase, RoomImageCreate, RoomUpdate
@@ -9,22 +8,30 @@ from controllers.room_controller import create_room, get_rooms, get_room, update
 
 room_router = APIRouter(prefix="/rooms", tags=["rooms"])
 
-
 @room_router.post("/", response_model=Room, status_code=status.HTTP_201_CREATED)
 def create_room_endpoint(
     name: str = Form(...),
     description: Optional[str] = Form(None),
     price: float = Form(...),
+    size: float = Form(...),  # Nuevo
+    max_guests: int = Form(2),  # Nuevo
+    bed_type: str = Form(...),  # Nuevo
+    has_balcony: bool = Form(False),  # Nuevo
+    has_tv: bool = Form(True),  # Nuevo
     is_available: bool = Form(True),
     alt_list: List[str] = Form([]),
     files: List[UploadFile] = File([]),
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
-    room_data = RoomCreate(name=name, description=description, price=price, is_available=is_available)
+    room_data = RoomCreate(
+        name=name, description=description, price=price, size=size, max_guests=max_guests,
+        bed_type=bed_type, has_balcony=has_balcony, has_tv=has_tv, is_available=is_available
+    )
     image_data_list = [RoomImageCreate(alt=alt) for alt in alt_list] if alt_list else []
     return create_room(db, room_data, files if files else None, image_data_list)
-@room_router.get("/", response_model=list[Room])
+
+@room_router.get("/", response_model=List[Room])
 def read_rooms(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return get_rooms(db, skip, limit)
 
@@ -35,36 +42,38 @@ def read_room(room_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Room not found")
     return db_room
 
-# routers/room_router.py
 @room_router.put("/{room_id}", response_model=Room)
 def update_room_endpoint(
     room_id: int,
     name: Optional[str] = Form(None),
     description: Optional[str] = Form(None),
     price: Optional[float] = Form(None),
+    size: Optional[float] = Form(None),  # Nuevo
+    max_guests: Optional[int] = Form(None),  # Nuevo
+    bed_type: Optional[str] = Form(None),  # Nuevo
+    has_balcony: Optional[bool] = Form(None),  # Nuevo
+    has_tv: Optional[bool] = Form(None),  # Nuevo
     is_available: Optional[bool] = Form(None),
     alt_list: List[str] = Form([]),
     files: List[UploadFile] = File(None),
     db: Session = Depends(get_db),
-    current_user = Depends(get_current_user)
+    current_user=Depends(get_current_user)
 ):
-    # Solo incluir campos que no son None
     room_update_dict = {}
-    if name is not None:
-        room_update_dict["name"] = name
-    if description is not None:
-        room_update_dict["description"] = description
-    if price is not None:
-        room_update_dict["price"] = price
-    if is_available is not None:
-        room_update_dict["is_available"] = is_available
+    for key, value in [
+        ("name", name), ("description", description), ("price", price),
+        ("size", size), ("max_guests", max_guests), ("bed_type", bed_type),
+        ("has_balcony", has_balcony), ("has_tv", has_tv), ("is_available", is_available)
+    ]:
+        if value is not None:
+            room_update_dict[key] = value
     
     room_update = RoomUpdate(**room_update_dict)
     image_data_list = [RoomImageCreate(alt=alt) for alt in alt_list] if alt_list else []
     return update_room(db, room_id, room_update, files if files else None, image_data_list)
 
 @room_router.delete("/{room_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_room_endpoint(room_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
+def delete_room_endpoint(room_id: int, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
     deleted = delete_room(db, room_id)
     if deleted is None:
         raise HTTPException(status_code=404, detail="Room not found")

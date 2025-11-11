@@ -8,27 +8,27 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-gallery_router = APIRouter(prefix="/gallery", tags=["gallery"])
+hero_router = APIRouter(prefix="/hero", tags=["hero"])
 
-@gallery_router.get("/", response_model=list[Image])
-def read_gallery(
+@hero_router.get("/", response_model=list[Image])
+def read_hero(
     skip: int = 0, 
     limit: int = 100, 
-    category: Optional[str] = Query("galeria", regex="^(galeria|hero)$"),  # Filtra por categoría
+    category: Optional[str] = Query("hero", regex="^(galeria|hero)$"),
     db: Session = Depends(get_db)
 ):
-    logger.info(f"GET /gallery (skip={skip}, limit={limit}, category={category})")
+    logger.info(f"GET /hero (skip={skip}, limit={limit}, category={category})")
     return get_images(db, skip, limit, category)
 
-@gallery_router.post("/", response_model=Image, status_code=status.HTTP_201_CREATED)
-def create_image_endpoint(
+@hero_router.post("/", response_model=Image, status_code=status.HTTP_201_CREATED)
+def create_hero_endpoint(
     alt: str = Form(...),
     desc: str = Form(...),
-    category: str = Form("galeria"),  # Por defecto "galeria"
+    category: str = Form("hero"),  # Por defecto "hero"
     file: UploadFile = File(..., description="Imagen a subir"),
     db: Session = Depends(get_db)
 ):
-    logger.info(f"POST /gallery: {alt} in {category}")
+    logger.info(f"POST /hero: {alt} in {category}")
     image_data = ImageCreate(alt=alt, desc=desc, category=category)
     try:
         created_image = create_image(db, image_data, file)
@@ -38,8 +38,8 @@ def create_image_endpoint(
     except Exception as e:
         raise HTTPException(500, detail="Failed to create image")
 
-@gallery_router.put("/{image_id}", response_model=Image)
-def update_image_endpoint(
+@hero_router.put("/{image_id}", response_model=Image)
+def update_hero_endpoint(
     image_id: int,
     alt: Optional[str] = Form(None),
     desc: Optional[str] = Form(None),
@@ -47,7 +47,7 @@ def update_image_endpoint(
     file: Optional[UploadFile] = File(None),
     db: Session = Depends(get_db)
 ):
-    logger.info(f"PUT /gallery/{image_id}")
+    logger.info(f"PUT /hero/{image_id}")
     image_update = ImageUpdate(alt=alt, desc=desc, category=category)
     try:
         return update_image(db, image_id, image_update, file)
@@ -56,9 +56,9 @@ def update_image_endpoint(
     except Exception as e:
         raise HTTPException(500, detail="Failed to update image")
 
-@gallery_router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_image_endpoint(image_id: int, db: Session = Depends(get_db)):
-    logger.info(f"DELETE /gallery/{image_id}")
+@hero_router.delete("/{image_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_hero_endpoint(image_id: int, db: Session = Depends(get_db)):
+    logger.info(f"DELETE /hero/{image_id}")
     try:
         delete_image(db, image_id)
         return None
@@ -68,13 +68,13 @@ def delete_image_endpoint(image_id: int, db: Session = Depends(get_db)):
         raise HTTPException(500, detail="Failed to delete image")
 
 # No-slash versions
-@gallery_router.get("", response_model=list[Image])
-def read_gallery_no_slash(skip: int = 0, limit: int = 100, category: Optional[str] = Query("galeria"), db: Session = Depends(get_db)):
+@hero_router.get("", response_model=list[Image])
+def read_hero_no_slash(skip: int = 0, limit: int = 100, category: Optional[str] = Query("hero"), db: Session = Depends(get_db)):
     return get_images(db, skip, limit, category)
 
-@gallery_router.post("", response_model=Image, status_code=201)
-def create_image_no_slash(
-    alt: str = Form(...), desc: str = Form(...), category: str = Form("galeria"),
+@hero_router.post("", response_model=Image, status_code=201)
+def create_hero_no_slash(
+    alt: str = Form(...), desc: str = Form(...), category: str = Form("hero"),
     file: UploadFile = File(..., description="Imagen a subir"),
     db: Session = Depends(get_db)
 ):

@@ -6,10 +6,11 @@ class Image(Base):
     __tablename__ = "images"
 
     id = Column(Integer, primary_key=True, index=True)
-    url = Column(String(1000), nullable=False, index=False)
-    public_id = Column(String(500), unique=True, index=True)
-    alt = Column(String(255), index=True)
-    desc = Column(String(500), index=True)
+    url = Column(String(255), nullable=False)
+    public_id = Column(String(255), nullable=False)
+    alt = Column(String(255), nullable=True)
+    desc = Column(String(255), nullable=True)
+    category = Column(String(50), nullable=False, default="galeria")
 
     __table_args__ = (
         Index('ix_images_url_prefix', func.substring(url, 1, 255), unique=True),

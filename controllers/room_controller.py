@@ -45,42 +45,23 @@ def update_room(
     files: Optional[List[UploadFile]] = None, 
     image_data_list: Optional[List[RoomImageCreate]] = None
 ) -> Optional[Room]:
-    """
-    Actualiza una habitación y opcionalmente sus imágenes.
-    Solo actualiza los campos que no sean None.
-    """
     try:
-        # Buscar habitación
         db_room = db.query(Room).filter(Room.id == room_id).first()
         if not db_room:
             logger.warning(f"Habitación {room_id} no encontrada")
             return None
         
-        # ✅ SOLO actualizar campos con valores nuevos
         update_data = room_update.model_dump(exclude_none=True)
         
-        if not update_data:
-            logger.info(f"No hay cambios para aplicar en habitación {room_id}")
-        else:
-            logger.info(f"Actualizando habitación {room_id}: {update_data}")
+        if update_data:
             for key, value in update_data.items():
                 setattr(db_room, key, value)
         
-        # Manejo de imágenes (opcional)
+        # Manejo de imágenes (sin cambios)
         if files and image_data_list:
-            # Validar que coincidan las cantidades
             if len(files) != len(image_data_list):
-                raise HTTPException(
-                    status_code=400, 
-                    detail="Número de archivos no coincide con metadatos"
-                )
+                raise HTTPException(status_code=400, detail="Número de archivos no coincide con metadatos")
             
-            # Eliminar imágenes antiguas (descomentar si quieres reemplazar)
-            # for old_img in db_room.images:
-            #     cloudinary.uploader.destroy(old_img.public_id)
-            #     db.delete(old_img)
-            
-            # Subir nuevas imágenes
             for file, img_data in zip(files, image_data_list):
                 if not file or not file.file:
                     continue
@@ -100,7 +81,6 @@ def update_room(
                 )
                 db.add(db_image)
         
-        # Commit único
         db.commit()
         db.refresh(db_room)
         logger.info(f"Habitación {room_id} actualizada exitosamente")

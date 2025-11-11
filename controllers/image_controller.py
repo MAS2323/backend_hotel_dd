@@ -14,8 +14,9 @@ def create_image(db: Session, image_data: ImageCreate, file: UploadFile):  # Sin
         if not file.filename:
             raise ValueError("Archivo requerido")
 
-        logger.info(f"Creating image: {image_data.alt}")
-        url, public_id = upload_image(file.file, folder="hotel_dd/gallery")
+        logger.info(f"Creating image: {image_data.alt} in category {image_data.category}")
+        folder = f"hotel_dd/{image_data.category}"
+        url, public_id = upload_image(file.file, folder=folder)
 
         if db.query(Image).filter(Image.url == url).first():
             raise ValueError("URL ya existe")
@@ -24,12 +25,13 @@ def create_image(db: Session, image_data: ImageCreate, file: UploadFile):  # Sin
             url=url,
             public_id=public_id,
             alt=image_data.alt,
-            desc=image_data.desc
+            desc=image_data.desc,
+            category=image_data.category
         )
         db.add(db_image)
         db.commit()
         db.refresh(db_image)
-        logger.info(f"✅ Created image ID {db_image.id}")
+        logger.info(f"✅ Created image ID {db_image.id} in {image_data.category}")
         return db_image
     except ValueError as e:
         if db.is_active:
@@ -41,10 +43,13 @@ def create_image(db: Session, image_data: ImageCreate, file: UploadFile):  # Sin
         logger.error(f"Create error: {e}")
         raise HTTPException(500, detail="Failed to create image")
 
-def get_images(db: Session, skip: int = 0, limit: int = 100):
+def get_images(db: Session, skip: int = 0, limit: int = 100, category: Optional[str] = None):
     try:
-        images = db.query(Image).offset(skip).limit(limit).all()
-        logger.info(f"Fetched {len(images)} images")
+        query = db.query(Image)
+        if category:
+            query = query.filter(Image.category == category)
+        images = query.offset(skip).limit(limit).all()
+        logger.info(f"Fetched {len(images)} images {'in ' + category if category else 'all categories'}")
         return images
     except Exception as e:
         logger.error(f"Fetch error: {e}")
@@ -63,6 +68,9 @@ def update_image(db: Session, image_id: int, image_update: ImageUpdate, file: Op
         if image_update.desc is not None:
             db_image.desc = image_update.desc
             updated = True
+        if image_update.category is not None:
+            db_image.category = image_update.category
+            updated = True
 
         if file and file.filename:
             # Delete old
@@ -72,8 +80,9 @@ def update_image(db: Session, image_id: int, image_update: ImageUpdate, file: Op
             except Exception as e:
                 logger.warning(f"Delete old failed: {e}")
 
-            # Upload new
-            new_url, new_public_id = upload_image(file.file, folder="hotel_dd/gallery")
+            # Upload new con nueva carpeta si category cambió
+            folder = f"hotel_dd/{db_image.category}"  # Usa la category actualizada
+            new_url, new_public_id = upload_image(file.file, folder=folder)
             if db.query(Image).filter(Image.id != image_id, Image.url == new_url).first():
                 raise ValueError("New URL already exists")
 

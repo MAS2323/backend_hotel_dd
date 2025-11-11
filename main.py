@@ -6,6 +6,7 @@ from routers.user_router import user_router
 from routers.room_router import room_router
 from routers.booking_router import booking_router
 from routers.gallery_router import gallery_router
+from routers.hero_router import hero_router
 from routers.testimonial_router import testimonial_router
 from routers.admin_router import admin_router
 from routers.service_router import public_service_router, admin_service_router
@@ -56,6 +57,7 @@ app.include_router(room_router)             # /rooms
 app.include_router(booking_router)          # /bookings
 app.include_router(gallery_router)          # /gallery
 app.include_router(testimonial_router)      # /testimonials
+app.include_router(hero_router)
 # ==========================================================
 app.include_router(stats_router)
 @app.get("/")
