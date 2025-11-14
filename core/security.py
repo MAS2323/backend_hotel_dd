@@ -21,6 +21,7 @@ pwd_context = CryptContext(
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
 
 class TokenData(BaseModel):
+    sub: Optional[str] = None
     username: Optional[str] = None
     role: Optional[str] = None
 
@@ -69,3 +70,4 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         return TokenData(username=username, role=user.role)
     except JWTError:
         raise credentials_exception
+    

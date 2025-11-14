@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict
+import json  # ← Para parsear en endpoints si es necesario
 
 class RoomImageBase(BaseModel):
     url: str
@@ -20,11 +21,13 @@ class RoomBase(BaseModel):
     name: str
     description: Optional[str] = None
     price: float
-    size: float  # Nuevo
-    max_guests: int  # Nuevo
-    bed_type: str  # Nuevo
-    has_balcony: bool = False  # Nuevo
-    has_tv: bool = True  # Nuevo
+    size: float
+    max_guests: int
+    bed_type: str
+    has_balcony: bool = False
+    has_tv: bool = True
+    amenities: Optional[Dict[str, bool]] = None
+    is_featured: bool = False  # ← NUEVO
     is_available: bool = True
 
 class RoomCreate(RoomBase):
@@ -34,11 +37,13 @@ class RoomUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     price: Optional[float] = None
-    size: Optional[float] = None  # Nuevo
-    max_guests: Optional[int] = None  # Nuevo
-    bed_type: Optional[str] = None  # Nuevo
-    has_balcony: Optional[bool] = None  # Nuevo
-    has_tv: Optional[bool] = None  # Nuevo
+    size: Optional[float] = None
+    max_guests: Optional[int] = None
+    bed_type: Optional[str] = None
+    has_balcony: Optional[bool] = None
+    has_tv: Optional[bool] = None
+    amenities: Optional[Dict[str, bool]] = None
+    is_featured: Optional[bool] = None  # ← NUEVO
     is_available: Optional[bool] = None
     images: Optional[List[RoomImageCreate]] = None
 
@@ -48,4 +53,4 @@ class Room(RoomBase):
     images: List[RoomImage] = []
 
     class Config:
-        from_attributes = True
+        from_attributes = True 

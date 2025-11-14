@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from fastapi import UploadFile, HTTPException
-from typing import Optional, List
+from typing import Optional, List, Dict
 from models.room_model import Room
 from models.room_image_model import RoomImage
 from schemas.room_schema import RoomCreate, RoomBase, RoomImageCreate, RoomUpdate
@@ -9,6 +9,7 @@ import cloudinary.uploader
 import logging
 
 logger = logging.getLogger(__name__)
+
 def create_room(db: Session, room: RoomCreate, files: List[UploadFile] = None, image_data_list: List[RoomImageCreate] = None):
     db_room = Room(**room.dict(exclude={"images"}))
     db.add(db_room)
@@ -32,6 +33,7 @@ def create_room(db: Session, room: RoomCreate, files: List[UploadFile] = None, i
         db.commit()
     
     return db_room
+
 def get_rooms(db: Session, skip: int = 0, limit: int = 100):
     return db.query(Room).offset(skip).limit(limit).all()
 
