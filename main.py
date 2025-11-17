@@ -1,4 +1,4 @@
-# main.py
+# main.py (actualizado para incluir el nuevo apartment_router)
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from core.database import engine, Base
@@ -11,7 +11,7 @@ from routers.testimonial_router import testimonial_router
 from routers.admin_router import admin_router
 from routers.service_router import public_service_router, admin_service_router
 from routers.stats_router import stats_router
-
+from routers.apartment_router import apartment_router  # ✅ Nuevo import
 
 app = FastAPI(title="Hotel-DD API", version="1.0.0")
 
@@ -58,6 +58,7 @@ app.include_router(booking_router)          # /bookings
 app.include_router(gallery_router)          # /gallery
 app.include_router(testimonial_router)      # /testimonials
 app.include_router(hero_router)
+app.include_router(apartment_router)        # ✅ Nuevo: /apartments
 # ==========================================================
 app.include_router(stats_router)
 @app.get("/")

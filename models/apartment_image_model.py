@@ -1,15 +1,16 @@
+# models/apartment_image_model.py (renombrado)
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from core.database import Base
 
-class DepartmentImage(Base):
-    __tablename__ = "department_images"
+class ApartmentImage(Base):
+    __tablename__ = "apartment_images"
 
     id = Column(Integer, primary_key=True, index=True)
     url = Column(String(255), nullable=False)
     public_id = Column(String(255), nullable=False)
     alt = Column(String(255), nullable=True)
-    department_id = Column(Integer, ForeignKey("departments.id"))
+    apartment_id = Column(Integer, ForeignKey("apartments.id"))
 
-    # ✅ RELACIÓN INVERSA OBLIGATORIA
-    department = relationship("Department", back_populates="images")
+    # Relación inversa obligatoria
+    apartment = relationship("Apartment", back_populates="images")

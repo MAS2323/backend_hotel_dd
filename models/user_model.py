@@ -1,8 +1,9 @@
-# models/user_model.py
+# models/user_model.py (tu código actualizado: confirma back_populates="owner" para consistencia)
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from core.database import Base
+from typing import List  # Para typing en relationships si es necesario
 
 class User(Base):
     __tablename__ = "users"
@@ -16,6 +17,6 @@ class User(Base):
     role = Column(String(20), default="user")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # Relationships - back_populates coincide con el relationship en Testimonial ("user")
+    # Relationships: back_populates coincide con el en Booking ("owner")
     bookings = relationship("Booking", back_populates="owner")
-    testimonials = relationship("Testimonial", back_populates="user")  # Fix: back_populates="user" (no "author")
+    testimonials = relationship("Testimonial", back_populates="user")  # Como indicaste en el comentario
