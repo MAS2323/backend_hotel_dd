@@ -1,4 +1,4 @@
-# main.py (actualizado para incluir el nuevo apartment_router)
+# main.py (actualizado para incluir el nuevo apartment_router y debug para restaurant_router)
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from core.database import engine, Base
@@ -12,6 +12,11 @@ from routers.admin_router import admin_router
 from routers.service_router import public_service_router, admin_service_router
 from routers.stats_router import stats_router
 from routers.apartment_router import apartment_router  # ✅ Nuevo import
+from routers.restaurant_router import restaurant_router  # ✅ Import del router de restaurante
+from routers.contact_router import contact_router
+
+from dotenv import load_dotenv
+load_dotenv()  # ✅ Carga .env para todas las vars
 
 app = FastAPI(title="Hotel-DD API", version="1.0.0")
 
@@ -41,6 +46,12 @@ print(f"\nadmin_service_router.routes: {len(admin_service_router.routes)} rutas"
 for i, r in enumerate(admin_service_router.routes):
     print(f"  {i+1}. {r.path} {r.methods}")
 
+# ← NUEVO: Debug para restaurant_router
+print(f"\nrestaurant_router.routes: {len(restaurant_router.routes)} rutas")
+for i, r in enumerate(restaurant_router.routes):
+    full_path = f"/restaurant{r.path}" if r.path != "/" else "/restaurant"
+    print(f"  {i+1}. {full_path} {r.methods}")
+
 print("\n" + "="*70 + "\n")
 # ======================================================
 
@@ -59,8 +70,11 @@ app.include_router(gallery_router)          # /gallery
 app.include_router(testimonial_router)      # /testimonials
 app.include_router(hero_router)
 app.include_router(apartment_router)        # ✅ Nuevo: /apartments
-# ==========================================================
+app.include_router(restaurant_router)       # ✅ Restaurante: /restaurant
 app.include_router(stats_router)
+app.include_router(contact_router)
+# ==========================================================
+
 @app.get("/")
 def read_root():
     return {"message": "¡API de Hotel-DD funcionando! Visita /docs"}

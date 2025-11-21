@@ -7,6 +7,7 @@ from controllers.user_controller import get_all_users, update_user_role
 from schemas.user_schema import UserOut, RoleUpdate # Importa UserOut
 import logging
 from models.apartment_model import Apartment
+from models.restaurant_model import MenuItem
 
 logger = logging.getLogger(__name__)
 
@@ -57,3 +58,11 @@ def get_admin_users(current_user: TokenData = Depends(require_admin)):
 def get_apartments_stats(db: Session = Depends(get_db)):
     count = db.query(Apartment).filter(Apartment.is_active == True).count()  # Opcional: solo activos
     return {"total": count}
+
+
+@admin_router.get("/stats/menu")
+def get_menu_stats(db: Session = Depends(get_db)):
+    count = db.query(MenuItem).count()  # Count total de ítems del menú
+    return {"total": count}
+
+

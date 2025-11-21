@@ -1,7 +1,10 @@
+# schemas/testimonial_schema.py (actualizado: cambia quote a content)
 from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
 
 class TestimonialBase(BaseModel):
-    quote: str
+    content: str
     author: str
 
 class TestimonialCreate(TestimonialBase):
@@ -9,7 +12,8 @@ class TestimonialCreate(TestimonialBase):
 
 class Testimonial(TestimonialBase):
     id: int
-    user_id: int
+    user_id: Optional[int] = None
+    created_at: datetime
 
     class Config:
         from_attributes = True
