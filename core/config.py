@@ -1,10 +1,9 @@
 from pydantic_settings import BaseSettings
 from typing import Optional
-import os
 
 class Settings(BaseSettings):
     # Database
-    database_url: Optional[str] = None  # Construye si no está
+    database_url: Optional[str] = None
     host: str = "localhost"
     username: str = "MAS ONEWE"
     password: str = "2323mas"
@@ -20,19 +19,16 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
-    # SendGrid
+    # Emails
     sendgrid_api_key: str = ""
-
-    # ✅ Nuevos: Para Gmail fallback
     gmail_email: str = "masoneweernesto@gmail.com"
-    gmail_app_password: str = "gmvpqypoxxzrjrwf"
+    gmail_app_password: str = "gmvp qypo xxzr jrwf"
 
-    class Config:
-        env_file = ".env"
+    model_config = {"env_file": ".env"}  # v2 syntax (no class Config)
 
-# Instancia global
+# Instancia
 settings = Settings()
 
-# Override database_url si no está
+# Override DB URL
 if not settings.database_url:
     settings.database_url = f"mysql+pymysql://{settings.username}:{settings.password}@{settings.host}/{settings.database}"
